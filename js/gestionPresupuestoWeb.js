@@ -314,6 +314,8 @@ function nuevoGastoWebFormulario(e){
     handleEnviarApi.formulario = formulario;
     handleEnviarApi.boton = botonAnyadir;
     btnEnviarApi.addEventListener("click", handleEnviarApi);
+
+    //la profe puso: formulario.querySelector("button.gasto-enviar-api").addEventListener("click", handleEnviarApi); pero como el botón no tiene esa clase, no me funcionaba, así que le puse una clase al botón y la busco con esa clase, y ya funciona perfectamente.
     
     botonCancelar.addEventListener("click", handleCancelar);
     document.getElementById("controlesprincipales").appendChild(formulario);
@@ -412,43 +414,110 @@ function mostrarGastoWeb(idElemento, gasto) {
     divGasto.appendChild(btnBorrarApi);
 }
   
-function mostrarGastosAgrupadosWeb(idElemento, agrup, periodo){
-  const contenedor = document.querySelector("#" + idElemento);
-  if(!contenedor) return;
+// function mostrarGastosAgrupadosWeb(idElemento, agrup, periodo){
+//   const contenedor = document.querySelector("#" + idElemento);
+//   if(!contenedor) return;
 
-  // Limpiamos el contenedor antes de pintar para que no se acumulen si llamamos varias veces
-  contenedor.innerHTML = ""; 
+//   // Limpiamos el contenedor antes de pintar para que no se acumulen si llamamos varias veces
+//   contenedor.innerHTML = ""; 
 
-  const divAgrup = document.createElement("div");
-  divAgrup.classList.add("agrupacion");
+//   const divAgrup = document.createElement("div");
+//   divAgrup.classList.add("agrupacion");
 
-  let periodoTexto = periodo;
-  if (periodo === "dia") periodoTexto = "día";
-  if (periodo === "anyo") periodoTexto = "año";
+//   let periodoTexto = periodo;
+//   if (periodo === "dia") periodoTexto = "día";
+//   if (periodo === "anyo") periodoTexto = "año";
 
-  const titulo = document.createElement("h1");
-  titulo.textContent = "Gastos agrupados por " + periodoTexto;
-  divAgrup.appendChild(titulo);
+//   const titulo = document.createElement("h1");
+//   titulo.textContent = "Gastos agrupados por " + periodoTexto;
+//   divAgrup.appendChild(titulo);
   
-  for (let clave in agrup) {
-    const divDato = document.createElement("div");
-    divDato.classList.add("agrupacion-dato");
+//   for (let clave in agrup) {
+//     const divDato = document.createElement("div");
+//     divDato.classList.add("agrupacion-dato");
 
-    const spanClave = document.createElement("span");
-    spanClave.classList.add("agrupacion-dato-clave");
-    spanClave.style.fontWeight = "bold";
-    spanClave.textContent = clave + " : ";
+//     const spanClave = document.createElement("span");
+//     spanClave.classList.add("agrupacion-dato-clave");
+//     spanClave.style.fontWeight = "bold";
+//     spanClave.textContent = clave + " : ";
 
-    const spanValor = document.createElement("span");
-    spanValor.classList.add("agrupacion-dato-valor");
-    spanValor.textContent = agrup[clave].toFixed(2) + " €";
+//     const spanValor = document.createElement("span");
+//     spanValor.classList.add("agrupacion-dato-valor");
+//     spanValor.textContent = agrup[clave].toFixed(2) + " €";
 
-    divDato.appendChild(spanClave);
-    divDato.appendChild(spanValor);
-    divAgrup.appendChild(divDato);
-  }
+//     divDato.appendChild(spanClave);
+//     divDato.appendChild(spanValor);
+//     divAgrup.appendChild(divDato);
+//   }
 
-  contenedor.appendChild(divAgrup);
+//   contenedor.appendChild(divAgrup);
+// }
+
+function mostrarGastosAgrupadosWeb(idElemento, agrup, periodo) {
+  //Obtener la capa y limpiarla
+  var divP = document.getElementById(idElemento);
+  if (!divP) return;
+  divP.innerHTML = "";
+
+  // Estilos
+divP.style.width = "33%";
+divP.style.display = "inline-block";
+// Crear elemento <canvas> necesario para crear la gráfica
+// https://www.chartjs.org/docs/latest/getting-started/
+let chart = document.createElement("canvas");
+// Variable para indicar a la gráfica el período temporal del eje X
+// En función de la variable "periodo" se creará la variable "unit" (anyo -> year; mes -> month; dia -> day)
+let unit = "";
+switch (periodo) {
+case "anyo":
+    unit = "year";
+    break;
+case "mes":
+    unit = "month";
+    break;
+case "dia":
+default:
+    unit = "day";
+    break;
+}
+
+// Creación de la gráfica
+// La función "Chart" está disponible porque hemos incluido las etiquetas <script> correspondientes en el fichero HTML
+const myChart = new Chart(chart.getContext("2d"), {
+    // Tipo de gráfica: barras. Puedes cambiar el tipo si quieres hacer pruebas: https://www.chartjs.org/docs/latest/charts/line.html
+    type: 'bar',
+    data: {
+        datasets: [
+            {
+                // Título de la gráfica
+                label: `Gastos por ${periodo}`,
+                // Color de fondo
+                backgroundColor: "#555555",
+                // Datos de la gráfica
+                // "agrup" contiene los datos a representar. Es uno de los parámetros de la función "mostrarGastosAgrupadosWeb".
+                data: agrup
+            }
+        ],
+    },
+    options: {
+        scales: {
+            x: {
+                // El eje X es de tipo temporal
+                type: 'time',
+                time: {
+                    // Indicamos la unidad correspondiente en función de si utilizamos días, meses o años
+                    unit: unit
+                }
+            },
+            y: {
+                // Para que el eje Y empieza en 0
+                beginAtZero: true
+            }
+        }
+    }
+});
+// Añadimos la gráfica a la capa
+divP.append(chart);
 }
 
 function repintar() {
@@ -474,7 +543,7 @@ function repintar() {
         mostrarGastoWeb("listado-gastos-completo", gasto);
       }
   }
-}
+ 
 
 let btnActPresupuesto = document.getElementById("actualizarpresupuesto");
 if(btnActPresupuesto) {

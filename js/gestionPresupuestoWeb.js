@@ -129,8 +129,7 @@ const BorrarApiHandle = {
         const nombre = document.querySelector('#nombre_usuario').value;
         
         const url = `https://suhhtqjccd.execute-api.eu-west-1.amazonaws.com/latest/${nombre}/${this.gasto.id}`;
-console.log("OJO A ESTO -> ID que intento borrar:", this.gasto.id); // <-- AÑADE ESTA LÍNEA
-console.log("URL completa:", url); // <-- Y ESTA
+
         try {
             const res = await fetch(url, { method: 'DELETE' });
 

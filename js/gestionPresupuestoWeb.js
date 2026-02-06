@@ -544,6 +544,32 @@ function filtrarGastosWeb(e) {
     }
 }
 
+function guardarGastosWeb() {
+    // Obtenemos el array de gastos actual
+    const lista = gesPres.listarGastos();
+    
+    // Lo convertimos a String (JSON) y lo guardamos
+    localStorage.setItem("GestorGastosDWEC", JSON.stringify(lista));
+}
+
+document.getElementById("guardar-gastos").addEventListener("click", guardarGastosWeb);
+//se añade la funcion manejadora de eventos para que al pulsar el boton se ejecute la función guardarGastosWeb, que guarda los gastos en el localStorage del navegador.
+
+function cargarGastosWeb() {
+    // Leemos del localStorage la clave y la almacenamos en esa variable
+    const datosRecuperados = localStorage.getItem("GestorGastosDWEC");
+    
+    // Si hay datos, los convertimos de JSON a objeto. Si no, array vacío.
+    const gastosAlmacenamiento = datosRecuperados ? JSON.parse(datosRecuperados) : [];
+    
+    // Pasamos los datos a la lógica para "rehidratarlos"
+    gesPres.cargarGastos(gastosAlmacenamiento);
+    
+    // Actualizamos la interfaz
+    repintar();
+}
+document.getElementById("cargar-gastos").addEventListener("click", cargarGastosWeb);
+
 
 function repintar() {
   
@@ -597,6 +623,7 @@ let form_filtrado = document.getElementById("formulario-filtrado");
 if (form_filtrado) {
     form_filtrado.addEventListener("submit", filtrarGastosWeb, false);
 }
+
 
 export{
     mostrarDatoEnId,

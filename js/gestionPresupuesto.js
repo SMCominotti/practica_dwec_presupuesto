@@ -218,21 +218,17 @@ function agruparGastos(periodo, etiquetas, fechaDesde, fechaHasta) {
 }
 
 function cargarGastos(nuevosGastos) {
-    // Vaciamos el array local para que no se mezclen con los viejos
-    gastos = [];
-    
-    // 2. Recorremos lo que nos llega de la API
+    gastos = []; // Vaciamos la lista local
+
     for (let g of nuevosGastos) {
-        // Convertimos cada dato de la API en un objeto "real" de nuestra app
-        // Usamos g.gastoid porque así es como lo llama la base de datos 
+  
         let gastoConvertido = new CrearGasto(g.descripcion, g.valor, g.fecha, ...g.etiquetas);
-        
-        // Le ponemos el ID que trae de la nube
-        gastoConvertido.id = g.gastoid; 
-        
-        // Lo guardamos en nuestra lista
+       
+        gastoConvertido.id = g.gastoId || g.id;
+
         gastos.push(gastoConvertido);
     }
+    
 }
 
 // NO MODIFICAR A PARTIR DE AQUÍ: exportación de funciones y objetos creados para poder ejecutar los tests.

@@ -111,6 +111,13 @@ const EditarHandleFormulario = {
         handleCancelar.boton = botonEditar;
         botonCancelar.addEventListener("click", handleCancelar);
        
+        let btnEnviarApiEdit = formulario.querySelector(".gasto-enviar-api");
+        let handleEnviarApiEdit = Object.create(EnviarEdicionGastoApiHandle);
+        handleEnviarApiEdit.formulario = formulario;
+        handleEnviarApiEdit.gasto = this.gasto; // Le pasamos el gasto que estamos editando
+        handleEnviarApiEdit.boton = botonEditar;
+        btnEnviarApiEdit.addEventListener("click", handleEnviarApiEdit);
+
         e.currentTarget.parentNode.appendChild(formulario);
     }
 };
@@ -122,7 +129,8 @@ const BorrarApiHandle = {
         const nombre = document.querySelector('#nombre_usuario').value;
         
         const url = `https://suhhtqjccd.execute-api.eu-west-1.amazonaws.com/latest/${nombre}/${this.gasto.id}`;
-
+console.log("OJO A ESTO -> ID que intento borrar:", this.gasto.id); // <-- AÑADE ESTA LÍNEA
+console.log("URL completa:", url); // <-- Y ESTA
         try {
             const res = await fetch(url, { method: 'DELETE' });
 
@@ -139,15 +147,82 @@ const BorrarApiHandle = {
     }
 };
 
+// Manejador para crear un gasto nuevo (POST)
+const EnviarNuevoGastoApiHandle = {
+    handleEvent: async function(e) {
+        e.preventDefault();
+        const f = this.formulario;
+        const nombre = document.querySelector('#nombre_usuario').value;
+
+        const datosGasto = {
+            descripcion: f.descripcion.value,
+            valor: parseFloat(f.valor.value),
+            fecha: f.fecha.value,
+            etiquetas: f.etiquetas.value ? f.etiquetas.value.split(",") : []
+        };
+
+        const url = `https://suhhtqjccd.execute-api.eu-west-1.amazonaws.com/latest/${nombre}`;
+
+        try {
+            const res = await fetch(url, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(datosGasto)
+            });
+            if (res.ok) {
+                f.remove();
+                if (this.boton) this.boton.disabled = false;
+                cargarGastosApi(); // Actualiza la lista
+            }
+        } catch (error) { console.error("Error POST:", error); }
+    }
+};
+
+// Manejador para editar un gasto existente (PUT)
+const EnviarEdicionGastoApiHandle = {
+    handleEvent: async function(e) {
+        e.preventDefault();
+        const f = this.formulario;
+        const nombre = document.querySelector('#nombre_usuario').value;
+
+        const datosGasto = {
+            descripcion: f.descripcion.value,
+            valor: parseFloat(f.valor.value),
+            fecha: f.fecha.value,
+            etiquetas: f.etiquetas.value ? f.etiquetas.value.split(",") : []
+        };
+
+        
+        const url = `https://suhhtqjccd.execute-api.eu-west-1.amazonaws.com/latest/${nombre}/${this.gasto.id}`;
+
+        try {
+            const res = await fetch(url, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(datosGasto)
+            });
+            if (res.ok) {
+                f.remove();
+                if (this.boton) this.boton.disabled = false;
+                cargarGastosApi(); // Actualiza la lista
+            }
+        } catch (error) { console.error("Error PUT:", error); }
+    }
+};
 
 async function cargarGastosApi() {
-    console.log("Intentando cargar gastos de la API..."); // Esto lo pongo para asegurarme que esta bien
+    // Borramos todo lo viejo de otras prácticas para verlo mas limpio
+    document.querySelectorAll('.gasto').forEach(g => g.remove()); 
+    const f1 = document.querySelector('#listado-gastos-filtrados-1');
+    const f2 = document.querySelector('#listado-gastos-filtrados-2');
+    if (f1) f1.innerHTML = "";
+    if (f2) f2.innerHTML = "";
     
     const inputNombre = document.querySelector('#nombre_usuario');
     const nombre = inputNombre.value;
 
     if (!nombre) {
-        alert("Escribe stellacominotti en el cuadro");
+        alert("Escribe tu nombre en el cuadro");
         return;
     }
 
@@ -158,8 +233,7 @@ async function cargarGastosApi() {
         if (!respuesta.ok) throw new Error("Error en el servidor");
 
         const datosApi = await respuesta.json();
-        
-        // Usamos gesPres porque así importaste el archivo al principio
+       
         gesPres.cargarGastos(datosApi); 
         repintar();
 
@@ -235,6 +309,12 @@ function nuevoGastoWebFormulario(e){
     let handleCancelar = Object.create(CancelarFormularioHandle);
     handleCancelar.formulario = formulario; // Guardamos referencia al form para borrarlo
     handleCancelar.boton = botonAnyadir;    // Guardamos referencia al botón para activarlo
+
+    let btnEnviarApi = formulario.querySelector(".gasto-enviar-api");
+    let handleEnviarApi = Object.create(EnviarNuevoGastoApiHandle);
+    handleEnviarApi.formulario = formulario;
+    handleEnviarApi.boton = botonAnyadir;
+    btnEnviarApi.addEventListener("click", handleEnviarApi);
     
     botonCancelar.addEventListener("click", handleCancelar);
     document.getElementById("controlesprincipales").appendChild(formulario);
@@ -325,7 +405,6 @@ function mostrarGastoWeb(idElemento, gasto) {
     btnBorrarApi.className = "gasto-borrar-api"; 
     btnBorrarApi.textContent = "Borrar (API)";
 
-    // Manejador
     let handleBorrarApi = Object.create(BorrarApiHandle);
     handleBorrarApi.gasto = gasto; // Le pasamos el gasto actual
     

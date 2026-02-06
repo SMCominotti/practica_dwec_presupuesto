@@ -217,6 +217,11 @@ function agruparGastos(periodo, etiquetas, fechaDesde, fechaHasta) {
     }, {}); // {}, al final → crea el objeto vacío inicial donde se irán sumando los valores de cada período.
 }
 
+//Filtrado
+function transformarListadoEtiquetas(lista) {
+return lista.match(/ä-z0-9]+/gi) || [];
+}
+
 function cargarGastos(nuevosGastos) {
     gastos = []; // Vaciamos la lista local
 

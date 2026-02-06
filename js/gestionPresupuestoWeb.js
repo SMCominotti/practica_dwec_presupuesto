@@ -543,7 +543,10 @@ function repintar() {
         mostrarGastoWeb("listado-gastos-completo", gasto);
       }
   }
- 
+  mostrarGastosAgrupadosWeb("listado-gastos-agrupados-dia", gesPres.agruparGastos("dia"), "dia");
+  mostrarGastosAgrupadosWeb("listado-gastos-agrupados-mes", gesPres.agruparGastos("mes"), "mes");
+  mostrarGastosAgrupadosWeb("listado-gastos-agrupados-anyo", gesPres.agruparGastos("anyo"), "anyo");
+}
 
 let btnActPresupuesto = document.getElementById("actualizarpresupuesto");
 if(btnActPresupuesto) {

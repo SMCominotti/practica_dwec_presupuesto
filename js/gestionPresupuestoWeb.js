@@ -115,6 +115,60 @@ const EditarHandleFormulario = {
     }
 };
 
+const BorrarApiHandle = {
+    handleEvent: async function(e) {
+        if (!confirm(`¿Borrar "${this.gasto.descripcion}" de la API?`)) return;
+
+        const nombre = document.querySelector('#nombre_usuario').value;
+        
+        const url = `https://suhhtqjccd.execute-api.eu-west-1.amazonaws.com/latest/${nombre}/${this.gasto.id}`;
+
+        try {
+            const res = await fetch(url, { method: 'DELETE' });
+
+            if (res.ok) {
+                alert("Gasto borrado de la API");
+                //  Volvemos a pedir la lista para que se actualice la web
+                cargarGastosApi();
+            } else {
+                alert("Error: No puedes borrar este gasto (quizás no es tuyo)");
+            }
+        } catch (error) {
+            console.error("Fallo al borrar:", error);
+        }
+    }
+};
+
+
+async function cargarGastosApi() {
+    console.log("Intentando cargar gastos de la API..."); // Esto lo pongo para asegurarme que esta bien
+    
+    const inputNombre = document.querySelector('#nombre_usuario');
+    const nombre = inputNombre.value;
+
+    if (!nombre) {
+        alert("Escribe stellacominotti en el cuadro");
+        return;
+    }
+
+    const url = `https://suhhtqjccd.execute-api.eu-west-1.amazonaws.com/latest/${nombre}`;
+
+    try {
+        const respuesta = await fetch(url);
+        if (!respuesta.ok) throw new Error("Error en el servidor");
+
+        const datosApi = await respuesta.json();
+        
+        // Usamos gesPres porque así importaste el archivo al principio
+        gesPres.cargarGastos(datosApi); 
+        repintar();
+
+        console.log("¡Datos cargados con éxito!");
+    } catch (error) {
+        console.error("Fallo de conexión:", error);
+    } //los console  de aca tambien, son ayuda para mi
+}
+
 function actualizarPresupuestoWeb() {
     let nuevoPres = prompt("Introduzca nuevo presupuesto:");
     
@@ -265,6 +319,19 @@ function mostrarGastoWeb(idElemento, gasto) {
     divGasto.appendChild(btnEditarForm);
     
     contenedor.appendChild(divGasto);
+
+    const btnBorrarApi = document.createElement("button");
+    btnBorrarApi.type = "button";
+    btnBorrarApi.className = "gasto-borrar-api"; 
+    btnBorrarApi.textContent = "Borrar (API)";
+
+    // Manejador
+    let handleBorrarApi = Object.create(BorrarApiHandle);
+    handleBorrarApi.gasto = gasto; // Le pasamos el gasto actual
+    
+    btnBorrarApi.addEventListener("click", handleBorrarApi, false);
+    
+    divGasto.appendChild(btnBorrarApi);
 }
   
 function mostrarGastosAgrupadosWeb(idElemento, agrup, periodo){
@@ -346,9 +413,14 @@ if(btnAnyadirForm) {
     btnAnyadirForm.addEventListener("click", nuevoGastoWebFormulario, false);
 }
 
+let btnCargarApi = document.getElementById("cargar-gastos-api");
+if (btnCargarApi) {
+    btnCargarApi.addEventListener("click", cargarGastosApi, false);
+}
 
 export{
     mostrarDatoEnId,
     mostrarGastoWeb,
     mostrarGastosAgrupadosWeb,
+    cargarGastosApi
     }

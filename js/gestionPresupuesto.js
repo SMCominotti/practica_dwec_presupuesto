@@ -219,7 +219,11 @@ function agruparGastos(periodo, etiquetas, fechaDesde, fechaHasta) {
 
 //Filtrado
 function transformarListadoEtiquetas(lista) {
-return lista.match(/ä-z0-9]+/gi) || [];
+  // Si la lista es null o undefined, devolvemos array vacío
+  if (!lista) return []; 
+  
+  // Buscamos todas las palabras alfanuméricas
+  return lista.match(/[a-z0-9]+/gi) || [];
 }
 
 function cargarGastos(nuevosGastos) {
@@ -251,4 +255,5 @@ export {
   filtrarGastos,
   agruparGastos,
   cargarGastos,
+  transformarListadoEtiquetas
 };

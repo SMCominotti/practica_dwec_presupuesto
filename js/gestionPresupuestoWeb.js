@@ -520,6 +520,31 @@ const myChart = new Chart(chart.getContext("2d"), {
 divP.append(chart);
 }
 
+function filtrarGastosWeb(e) {
+    e.preventDefault();
+
+    let filtro = {};
+    filtro.valorMinimo = e.target["formulario-filtrado-valor-minimo"].value;
+    filtro.valorMaximo = e.target["formulario-filtrado-valor-maximo"].value;
+    filtro.fechaDesde = e.target["formulario-filtrado-fecha-desde"].value;
+    filtro.fechaHasta = e.target["formulario-filtrado-fecha-hasta"].value;
+    filtro.descripcionContiene = e.target["formulario-filtrado-descripcion"].value;
+
+    // Comprobación etiquetas
+    if (e.target["formulario-filtrado-etiquetas-tiene"].value) {
+        filtro.etiquetasTiene = gesPres.transformarListadoEtiquetas(e.target["formulario-filtrado-etiquetas-tiene"].value);
+    }
+
+    let lgastos = document.getElementById("listado-gastos-completo");
+    lgastos.innerHTML = "";
+
+    // Bucle for...of para recorrer los resultados del filtro
+    for (let g of gesPres.filtrarGastos(filtro)) {
+        mostrarGastoWeb("listado-gastos-completo", g);
+    }
+}
+
+
 function repintar() {
   
   mostrarDatoEnId("presupuesto", gesPres.mostrarPresupuesto());
@@ -566,6 +591,11 @@ if(btnAnyadirForm) {
 let btnCargarApi = document.getElementById("cargar-gastos-api");
 if (btnCargarApi) {
     btnCargarApi.addEventListener("click", cargarGastosApi, false);
+}
+
+let form_filtrado = document.getElementById("formulario-filtrado");
+if (form_filtrado) {
+    form_filtrado.addEventListener("submit", filtrarGastosWeb, false);
 }
 
 export{

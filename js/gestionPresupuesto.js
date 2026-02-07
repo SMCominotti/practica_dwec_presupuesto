@@ -226,44 +226,57 @@ function transformarListadoEtiquetas(lista) {
   return lista.match(/[a-z0-9]+/gi) || [];
 }
 
-// function cargarGastos(nuevosGastos) {
-//     gastos = []; // Vaciamos la lista local
+function cargarGastos(nuevosGastos) {
+    gastos = []; // Vaciamos la lista local
 
-//     for (let g of nuevosGastos) {
+    for (let g of nuevosGastos) {
   
-//         let gastoConvertido = new CrearGasto(g.descripcion, g.valor, g.fecha, ...g.etiquetas);
+        let gastoConvertido = new CrearGasto(g.descripcion, g.valor, g.fecha, ...g.etiquetas);
        
-//         gastoConvertido.id = g.gastoId || g.id;
+        // REHIDRATAMOS LAS ETIQUETAS
+        if (g.etiquetas) {
+            gastoConvertido.etiquetas = [...g.etiquetas];
+        }
+        
+        gastoConvertido.id = g.gastoId || g.id;
 
-//         gastos.push(gastoConvertido);
-//     }
-    
-// }
-function cargarGastos(gastosAlmacenamiento) {
-    // gastosAlmacenamiento es un array de objetos "planos"
-    // No tienen acceso a los métodos creados con "CrearGasto":
-    // "anyadirEtiquetas", "actualizarValor",...
-    // Solo tienen guardadas sus propiedades: descripcion, valor, fecha y etiquetas
-  
-    // Reseteamos la variable global "gastos"
-    gastos = [];
-    // Procesamos cada gasto del listado pasado a la función
-    for (let g of gastosAlmacenamiento) {
-        // Creamos un nuevo objeto mediante el constructor
-        // Este objeto tiene acceso a los métodos "anyadirEtiquetas", "actualizarValor",...
-        // Pero sus propiedades (descripcion, valor, fecha y etiquetas) están sin asignar
-        let gastoRehidratado = new CrearGasto();
-        // Copiamos los datos del objeto guardado en el almacenamiento
-        // al gasto rehidratado
-        // https://es.javascript.info/object-copy#cloning-and-merging-object-assign
-        Object.assign(gastoRehidratado, g);
-        // Ahora "gastoRehidratado" tiene las propiedades del gasto
-        // almacenado y además tiene acceso a los métodos de "CrearGasto"
-          
-        // Añadimos el gasto rehidratado a "gastos"
-        gastos.push(gastoRehidratado)
+        gastos.push(gastoConvertido);
     }
+    
 }
+
+// Este es el de clase, cambiando el nombre de gastoId
+// function cargarGastos(gastosAlmacenamiento) {
+//     // gastosAlmacenamiento es un array de objetos "planos"
+//     // No tienen acceso a los métodos creados con "CrearGasto":
+//     // "anyadirEtiquetas", "actualizarValor",...
+//     // Solo tienen guardadas sus propiedades: descripcion, valor, fecha y etiquetas
+  
+//     // Reseteamos la variable global "gastos"
+//     gastos = [];
+//     // Procesamos cada gasto del listado pasado a la función
+//     for (let g of gastosAlmacenamiento) {
+//         // Creamos un nuevo objeto mediante el constructor
+//         // Este objeto tiene acceso a los métodos "anyadirEtiquetas", "actualizarValor",...
+//         // Pero sus propiedades (descripcion, valor, fecha y etiquetas) están sin asignar
+//         let gastoRehidratado = new CrearGasto();
+//         // Copiamos los datos del objeto guardado en el almacenamiento
+//         // al gasto rehidratado
+//         // https://es.javascript.info/object-copy#cloning-and-merging-object-assign
+//         Object.assign(gastoRehidratado, g);
+//         // Ahora "gastoRehidratado" tiene las propiedades del gasto
+//         // almacenado y además tiene acceso a los métodos de "CrearGasto"
+          
+//         // Si el objeto g tiene 'gastoId' (porque viene de la API)
+//         // se lo asignamos a '.id' para que tus botones de borrar/editar funcionen.
+//         if (g.gastoId) {
+//             gastoRehidratado.id = g.gastoId;
+//         }
+
+//         // Añadimos el gasto rehidratado a "gastos"
+//         gastos.push(gastoRehidratado)
+//     }
+// }
     
 
 // NO MODIFICAR A PARTIR DE AQUÍ: exportación de funciones y objetos creados para poder ejecutar los tests.
